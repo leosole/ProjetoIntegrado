@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Projeto Integrado</string>
+    <string name="bluetooth_desconectado">Bluetooth desconectado</string>
+    <string name="conectar">Conectar</string>
 </resources>
