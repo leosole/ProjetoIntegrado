@@ -7,53 +7,18 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@string/bluetooth_desconectado"
-            app:layout_constraintBottom_toTopOf="@+id/text_BTdisconnected"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_baseline_bluetooth_disabled_24" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/navigation_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/navigation"/>
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/text_BTdisconnected"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto"
-            android:text="@string/bluetooth_desconectado"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.398" />
-
-        <Button
-            android:id="@+id/button_connectBT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto"
-            android:paddingLeft="32dp"
-            android:paddingTop="16dp"
-            android:paddingRight="32dp"
-            android:paddingBottom="16dp"
-            android:text="@string/conectar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_BTdisconnected" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
