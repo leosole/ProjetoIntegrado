@@ -23,4 +23,9 @@ class Sobre : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        val activity = activity as MainActivity?
+        activity?.showUpButton()
+    }
 }

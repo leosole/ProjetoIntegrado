@@ -17,9 +17,6 @@
         <action
             android:id="@+id/action_inicio_to_controle"
             app:destination="@id/controle" />
-        <action
-            android:id="@+id/action_inicio_to_sobre"
-            app:destination="@id/sobre" />
     </fragment>
     <fragment
         android:id="@+id/btOff"
@@ -44,7 +41,7 @@
         android:name="com.ufrj.projetointegrado.Controle"
         android:label="Controle" />
     <fragment
-        android:id="@+id/sobre"
+        android:id="@+id/sobre_id"
         android:name="com.ufrj.projetointegrado.Sobre"
         android:label="Sobre" />
 </navigation>

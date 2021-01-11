@@ -16,4 +16,8 @@
     <style name="titulo">
         <item name="android:background">@color/blue</item>
     </style>
+
+    <style name="logo">
+        <item name="android:fontFamily">@font/roboto_slab_bold</item>
+    </style>
 </resources>
