@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import com.ufrj.projetointegrado.databinding.FragmentInicioBinding
 
 
@@ -27,21 +28,11 @@ class inicio : Fragment(){
                 R.layout.fragment_inicio,
                 container, false)
         binding.buttonIniciar.setOnClickListener { view: View ->  // BOTÃO INICIAR
-            val btState = testBT()
-            if (btState == 0) {
-                Navigation.createNavigateOnClickListener(R.id.action_inicio_to_btOff)
+            when (testBT()) {  // Verifica estado do bluetooth
+                0 -> view.findNavController().navigate(R.id.action_inicio_to_btOff)
+                1 -> view.findNavController().navigate(R.id.action_inicio_to_carOff)
+                else -> view.findNavController().navigate(R.id.action_inicio_to_controle)
             }
-            else if( btState == 1){
-                Navigation.createNavigateOnClickListener(R.id.action_inicio_to_carOff)
-            }
-            else {
-                Navigation.createNavigateOnClickListener(R.id.action_inicio_to_controle)
-            }
-//            when (testBT()) {  // Verifica estado do bluetooth
-//                0 -> Navigation.createNavigateOnClickListener(R.id.action_inicio_to_btOff)
-//                1 -> Navigation.createNavigateOnClickListener(R.id.action_inicio_to_carOff)
-//                else -> Navigation.createNavigateOnClickListener(R.id.action_inicio_to_controle)
-//            }
         }
         return binding.root
     }
