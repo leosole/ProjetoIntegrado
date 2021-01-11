@@ -6,4 +6,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="nome_logo">Bluetooth Car</string>
     <string name="iniciar">Iniciar</string>
+    <string name="carrinho_desconectado">Carrinho desconectado</string>
+    <string name="calibrar">Calibrar</string>
+    <string name="instrucao_calib">
+        Mantenha o celular em uma superfície reta e clique em calibrar
+    </string>
+    <string name="explicao_do_projeto">Explicação do projeto</string>
 </resources>

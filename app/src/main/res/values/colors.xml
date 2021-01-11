@@ -8,4 +8,6 @@
     <color name="orange_light">#EAB567</color>
     <color name="orange">#DA8122</color>
     <color name="orange_dark">#BC4606</color>
+    <color name="grey_light">#EDEDED</color>
+    <color name="grey_dark">#5C5C5C</color>
 </resources>
