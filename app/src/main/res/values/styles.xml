@@ -21,4 +21,10 @@
     <style name="logo">
         <item name="android:fontFamily">@font/roboto_slab</item>
     </style>
+
+    <style name="ThemeOverlay.MyTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:backgroundTint">@color/white</item>
+    </style>
+
 </resources>

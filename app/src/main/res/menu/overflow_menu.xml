@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white">
 
     <item
         android:id="@+id/sobre_id"
-        android:title="@string/sobre" />
+        android:title="@string/sobre"
+        android:backgroundTint="@color/white"/>
 </menu>
