@@ -29,7 +29,8 @@ class btOff : Fragment(){
             var myBT: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
             myBT.enable()  // Ativa BT
             while (!myBT.isEnabled) {}  // Espera BT ativar para avançar
-            view.findNavController().navigate(R.id.action_btOff_to_controle)  //  Troca de tela
+//            view.findNavController().navigate(R.id.action_btOff_to_controle)  //  Troca de tela
+            (activity as MainActivity?)?.startControle()
         }
         return binding.root
     }

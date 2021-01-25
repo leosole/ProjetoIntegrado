@@ -22,14 +22,18 @@ class inicio : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         val binding = DataBindingUtil.inflate<FragmentInicioBinding>(
-                inflater,
-                R.layout.fragment_inicio,
-                container, false)
+            inflater,
+            R.layout.fragment_inicio,
+            container, false
+        )
         binding.buttonIniciar.setOnClickListener { view: View ->  // BOTÃO INICIAR
             when (testBT()) {  // Verifica estado do bluetooth
                 0 -> view.findNavController().navigate(R.id.action_inicio_to_btOff)
                 1 -> view.findNavController().navigate(R.id.action_inicio_to_carOff)
-                else -> view.findNavController().navigate(R.id.action_inicio_to_controle)
+                else -> {
+                    (activity as MainActivity?)?.startControle()
+//                    view.findNavController().navigate(R.id.action_inicio_to_controle)
+                }
             }
         }
         setHasOptionsMenu(true)
@@ -42,8 +46,10 @@ class inicio : Fragment(){
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return NavigationUI.onNavDestinationSelected(item,
-                requireView().findNavController())
+        return NavigationUI.onNavDestinationSelected(
+            item,
+            requireView().findNavController()
+        )
                 || super.onOptionsItemSelected(item)
     }
 

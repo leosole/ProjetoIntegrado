@@ -1,15 +1,24 @@
 package com.ufrj.projetointegrado
 
+import android.content.Context
+import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.ufrj.projetointegrado.databinding.ActivityMainBinding
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,20 +39,9 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp()
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        val inflater: MenuInflater = menuInflater
-//        inflater.inflate(R.menu.overflow_menu, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        val navController: NavController = Navigation.findNavController(this, R.id.navigation_fragment)
-//        return when (item.itemId) {
-//            R.id.sobre_id -> {
-//                NavigationUI.onNavDestinationSelected(item, navController)
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
+    fun startControle() {
+        val intent = Intent(this, ControleActivity::class.java)
+        startActivity(intent)
+    }
 
 }
