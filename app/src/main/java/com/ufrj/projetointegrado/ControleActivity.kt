@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Layout
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -26,6 +27,9 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityControleBinding
     private lateinit var cs: ConstraintLayout
     private lateinit var set: ConstraintSet
+    private var x0 = 0.0
+    private var y0 = 0.0
+    private var calibrate = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +44,10 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
                 SensorManager.SENSOR_DELAY_NORMAL,
                 SensorManager.SENSOR_DELAY_UI
             )
+        }
+
+        binding.buttonCalibrate.setOnClickListener {
+            calibrate = true
         }
         set = ConstraintSet()
     }
@@ -65,6 +73,13 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         val azimuthAngle = toDegrees(orientation[0])
         val pitchAngle = toDegrees(orientation[1])
         val rollAngle = toDegrees(orientation[2])
+        if (calibrate){
+            y0 = pitchAngle
+            x0 = rollAngle
+            val msg = "x0: " + x0 +  "y0: " +y0
+            Log.i("Controle", msg)
+            calibrate = false
+        }
         generateCode(pitchAngle, rollAngle)
 
     }
@@ -75,8 +90,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
 
 
     fun generateCode(pitchAngle: Double, rollAngle: Double): String {
-//        var frontCircle = binding.frontCircle
-        var frontCircle = com.ufrj.projetointegrado.R.id.frontCircle
+        val frontCircle = com.ufrj.projetointegrado.R.id.frontCircle
         set.clone(cs)
 
         val ang1 = 8
@@ -84,23 +98,32 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
 
         var x = 0
 
-        if (abs(rollAngle) > ang1) {
+        if (rollAngle > x0 + ang1) {
             x = 1
+        }
+        if (rollAngle < x0 - ang1) {
+            x = -1
+        }
+        if (rollAngle > x0 + ang2) {
+            x = 2
+        }
+        if (rollAngle < x0 - ang2) {
+            x = -2
+        }
 
+        var y = 0
+        if (pitchAngle > y0 + ang1) {
+            y = 1
         }
-        if (abs(rollAngle) > ang2) {
-            x = 2;
+        if (pitchAngle < y0 - ang1) {
+            y = -1
         }
-        x *= sign(rollAngle).toInt()
-
-        var y = 0;
-        if (abs(pitchAngle) > ang1) {
-            y = 1;
-        }
-        if (abs(pitchAngle) > ang2) {
+        if (pitchAngle > y0 + ang2) {
             y = 2;
         }
-        y *= sign(pitchAngle).toInt()
+        if (pitchAngle < y0 - ang2) {
+            y = -2
+        }
 
         when{ // v_roda_esquerda v_roda_direita
             x == 2 && y == 0 -> { // 2 0
