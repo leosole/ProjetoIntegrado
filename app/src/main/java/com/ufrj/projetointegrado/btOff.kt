@@ -37,8 +37,8 @@ class btOff : Fragment(){
 //            requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 //            view.findNavController().navigate(R.id.action_btOff_to_controle)  //  Troca de tela
             val navController = this.findNavController()
-            navController.popBackStack(R.id.inicio, false);
             (activity as MainActivity?)?.startControle()
+            navController.popBackStack(R.id.inicio, false)
         }
         return binding.root
     }

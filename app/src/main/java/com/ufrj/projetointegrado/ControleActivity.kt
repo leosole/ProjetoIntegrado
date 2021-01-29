@@ -46,7 +46,8 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
                 SensorManager.SENSOR_DELAY_UI
             )
         }
-
+        setSupportActionBar(binding.myToolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         binding.buttonCalibrate.setOnClickListener {
             calibrate = true
         }
