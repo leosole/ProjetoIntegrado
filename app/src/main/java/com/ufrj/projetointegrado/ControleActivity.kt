@@ -1,22 +1,16 @@
 package com.ufrj.projetointegrado
 
-import android.R
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.text.Layout
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentManager
 import com.ufrj.projetointegrado.databinding.ActivityControleBinding
-import kotlin.math.abs
-import kotlin.math.sign
 
 
 class ControleActivity : AppCompatActivity(), SensorEventListener {
@@ -30,7 +24,8 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var set: ConstraintSet
     private var x0 = 0.0
     private var y0 = 0.0
-    private var calibrate = false
+    private var calibrate = false  // calibra a rotação
+    private var start = false // inicia o controle do carrinho
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +44,11 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         setSupportActionBar(binding.myToolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         binding.buttonCalibrate.setOnClickListener {
+            if(!start) {
+                binding.buttonCalibrate.setText("Recalibrar")
+                binding.instrCalibrate.setText(R.string.instrucao_recalib)
+                start = true
+            }
             calibrate = true
         }
         set = ConstraintSet()
@@ -72,13 +72,13 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         SensorManager.getRotationMatrixFromVector(rotationMatrix, rotationVector)
         val orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles)
 
-        val azimuthAngle = toDegrees(orientation[0])
+        toDegrees(orientation[0])
         val pitchAngle = toDegrees(orientation[1])
         val rollAngle = toDegrees(orientation[2])
         if (calibrate){ // calibração
             y0 = pitchAngle
             x0 = rollAngle
-            val msg = "x0: " + x0 +  "y0: " +y0
+            val msg = "Origem alterada: (" + x0 +  ", " + y0 + ")"
             Log.i("Controle", msg)
             calibrate = false
         }
@@ -121,7 +121,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             y = -1
         }
         if (pitchAngle > y0 + ang2) {
-            y = 2;
+            y = 2
         }
         if (pitchAngle < y0 - ang2) {
             y = -2
