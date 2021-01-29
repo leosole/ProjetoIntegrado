@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentManager
 import com.ufrj.projetointegrado.databinding.ActivityControleBinding
 import kotlin.math.abs
 import kotlin.math.sign
@@ -73,7 +74,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         val azimuthAngle = toDegrees(orientation[0])
         val pitchAngle = toDegrees(orientation[1])
         val rollAngle = toDegrees(orientation[2])
-        if (calibrate){
+        if (calibrate){ // calibração
             y0 = pitchAngle
             x0 = rollAngle
             val msg = "x0: " + x0 +  "y0: " +y0
