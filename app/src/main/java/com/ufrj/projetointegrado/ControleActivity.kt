@@ -1,5 +1,7 @@
 package com.ufrj.projetointegrado
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -22,10 +24,11 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityControleBinding
     private lateinit var cs: ConstraintLayout
     private lateinit var set: ConstraintSet
-    private var x0 = 0.0
-    private var y0 = 0.0
+    private var x0 = 0.0  // usado para calibração
+    private var y0 = 0.0  // usado para calibração
     private var calibrate = false  // calibra a rotação
     private var start = false // inicia o controle do carrinho
+    private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +55,17 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             calibrate = true
         }
         set = ConstraintSet()
+    }
+
+    fun searchPairedDevices(name: String): String { // procura o módulo bluetooth pelo nome
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+        var mac: String = "not found"
+        pairedDevices?.forEach { device ->
+            if (device.name == name){
+                mac = device.address
+            }
+        }
+        return mac
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

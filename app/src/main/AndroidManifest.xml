@@ -16,7 +16,7 @@
         <activity
             android:name=".ControleActivity"
             android:id="@+id/controle"
-            android:label="@string/title_activity_controle"
+            android:label="Controle"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
         </activity>
