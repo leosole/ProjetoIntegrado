@@ -51,7 +51,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
                 binding.buttonCalibrate.setText("Recalibrar")
                 binding.instrCalibrate.setText(R.string.instrucao_recalib)
                 start = true
-                Log.i("Controle", searchPairedDevices("HC-05"))
+                Log.i("Controle", searchPairedDevices("HC-05")) // teste para achar o dispositivo
             }
             calibrate = true
         }
