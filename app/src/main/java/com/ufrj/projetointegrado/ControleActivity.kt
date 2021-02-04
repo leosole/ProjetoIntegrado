@@ -51,13 +51,14 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
                 binding.buttonCalibrate.setText("Recalibrar")
                 binding.instrCalibrate.setText(R.string.instrucao_recalib)
                 start = true
+                Log.i("Controle", searchPairedDevices("HC-05"))
             }
             calibrate = true
         }
         set = ConstraintSet()
     }
 
-    fun searchPairedDevices(name: String): String { // procura o módulo bluetooth pelo nome
+    fun searchPairedDevices(name: String): String { // procura o módulo bluetooth pelo nome (HC-05)
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         var mac: String = "not found"
         pairedDevices?.forEach { device ->
