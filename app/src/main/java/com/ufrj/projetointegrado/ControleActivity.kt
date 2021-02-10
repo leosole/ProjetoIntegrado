@@ -2,17 +2,23 @@ package com.ufrj.projetointegrado
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
 import com.ufrj.projetointegrado.databinding.ActivityControleBinding
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.util.*
 
 
 class ControleActivity : AppCompatActivity(), SensorEventListener {
@@ -22,20 +28,21 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     private val rotationMatrix = FloatArray(9)
     private val orientationAngles = FloatArray(3)
     private lateinit var binding: ActivityControleBinding
-    private lateinit var cs: ConstraintLayout
-    private lateinit var set: ConstraintSet
-    private var x0 = 0.0  // usado para calibração
-    private var y0 = 0.0  // usado para calibração
+    private lateinit var cs: ConstraintLayout  // guarda informações do layout
+    private lateinit var set: ConstraintSet  // altera posição da bolinha
+    private var x0 = 0.0  // 0 da calibração
+    private var y0 = 0.0  // 0 da calibração
     private var calibrate = false  // calibra a rotação
-    private var start = false // inicia o controle do carrinho
+    private var start = false  // inicia o controle do carrinho
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, com.ufrj.projetointegrado.R.layout.activity_controle)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_controle)
         cs = binding.controleConstraint
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-
+        start = false
+        calibrate = false
         sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.also { rotationSensor ->
             sensorManager.registerListener(
                 this,
@@ -51,7 +58,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
                 binding.buttonCalibrate.setText("Recalibrar")
                 binding.instrCalibrate.setText(R.string.instrucao_recalib)
                 start = true
-                Log.i("Controle", searchPairedDevices("HC-05")) // teste para achar o dispositivo
+                Log.i("Bluetooth", searchPairedDevices("HC-05")) // teste para achar o dispositivo
             }
             calibrate = true
         }
@@ -60,13 +67,35 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
 
     fun searchPairedDevices(name: String): String { // procura o módulo bluetooth pelo nome (HC-05)
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-        var mac: String = "not found"
+        var mac = "not found"
         pairedDevices?.forEach { device ->
-            if (device.name == name){
+            if (device.name == name) {
                 mac = device.address
+//                ConnectThread(device)  // inicia conexão
             }
         }
         return mac
+    }
+
+    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
+        val MY_UUID = UUID(1111, 1111)  // identificador -> usar o mesmo no carrinho
+        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            device.createRfcommSocketToServiceRecord(MY_UUID)
+        }
+        override fun run() {
+            bluetoothAdapter?.cancelDiscovery()
+            mmSocket?.use { socket ->
+                socket.connect()
+//                manageMyConnectedSocket(socket)
+            }
+        }
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e("Bluetooth", "Could not close the client socket", e)
+            }
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -97,8 +126,9 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             Log.i("Controle", msg)
             calibrate = false
         }
-        generateCode(pitchAngle, rollAngle)
-
+        if (start) {  // inicia controle
+            generateCode(pitchAngle, rollAngle)
+        }
     }
 
     fun toDegrees(radians: Float): Double {
@@ -223,13 +253,73 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         set.applyTo(cs)
         return "%+d%+d".format(x, y)
     }
+}
 
-//    fun showUpButton() {  // Mostra seta para voltar
-//        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-//    }
-//
-//    override fun onResume() {
-//        super.onResume()
-//        this.showUpButton()
-//    }
+class MyBluetoothService(
+    // handler that gets info from Bluetooth service
+    private val handler: Handler
+) {
+    val MESSAGE_READ: Int = 0
+    val MESSAGE_WRITE: Int = 1
+    val MESSAGE_TOAST: Int = 2
+
+    private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
+
+        private val mmInStream: InputStream = mmSocket.inputStream
+        private val mmOutStream: OutputStream = mmSocket.outputStream
+        private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
+
+        override fun run() {
+            var numBytes: Int // bytes returned from read()
+
+            // Keep listening to the InputStream until an exception occurs.
+            while (true) {
+                // Read from the InputStream.
+                numBytes = try {
+                    mmInStream.read(mmBuffer)
+                } catch (e: IOException) {
+                    Log.d("Bluetooth", "Input stream was disconnected", e)
+                    break
+                }
+
+                // Send the obtained bytes to the UI activity.
+                val readMsg = handler.obtainMessage(
+                    MESSAGE_READ, numBytes, -1,
+                    mmBuffer)
+                readMsg.sendToTarget()
+            }
+        }
+
+        // Call this from the main activity to send data to the remote device.
+        fun write(bytes: ByteArray) {
+            try {
+                mmOutStream.write(bytes)
+            } catch (e: IOException) {
+                Log.e("Bluetooth", "Error occurred when sending data", e)
+
+                // Send a failure message back to the activity.
+                val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
+                val bundle = Bundle().apply {
+                    putString("toast", "Couldn't send data to the other device")
+                }
+                writeErrorMsg.data = bundle
+                handler.sendMessage(writeErrorMsg)
+                return
+            }
+
+            // Share the sent message with the UI activity.
+            val writtenMsg = handler.obtainMessage(
+                MESSAGE_WRITE, -1, -1, bytes)
+            writtenMsg.sendToTarget()
+        }
+
+        // Call this method from the main activity to shut down the connection.
+        fun cancel() {
+            try {
+                mmSocket.close()
+            } catch (e: IOException) {
+                Log.e("Bluetooth", "Could not close the connect socket", e)
+            }
+        }
+    }
 }
