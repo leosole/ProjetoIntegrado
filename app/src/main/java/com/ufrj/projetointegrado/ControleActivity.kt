@@ -8,7 +8,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -16,11 +15,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
 import com.ufrj.projetointegrado.databinding.ActivityControleBinding
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
-import kotlin.math.atan2
-import kotlin.math.sqrt
 
 
 class ControleActivity : AppCompatActivity(), SensorEventListener {
@@ -102,13 +97,38 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             calibrate = false
         }
         if (start) {  // inicia controle
-            val code = generateCode(pitchAngle, rollAngle)
-            updateUI(code)
-            sendCommand(code)
+            sendCommandAndUpdateUI(pitchAngle, rollAngle)
         }
     }
 
-    fun generateCode(pitchAngle: Double, rollAngle: Double): String {
+    fun connectBluetoothDevice(macAddress: String) {
+        try {
+            if (btSocket == null) {
+                btAdapter = BluetoothAdapter.getDefaultAdapter();
+
+                // This will connect the device with address as passed
+                val btDevice: BluetoothDevice = btAdapter!!.getRemoteDevice(macAddress);
+                btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(myUUID);
+                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+
+                btSocket!!.connect();
+            }
+        } catch (e: IOException) {
+            btSocket = null
+        }
+    }
+
+    fun sendBluetoothCommand(command: String) {
+        if (btSocket != null) {
+            try {
+                btSocket!!.outputStream.write(command.toByteArray())
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun sendCommandAndUpdateUI(pitchAngle: Double, rollAngle: Double) {
         val ang1 = 8
         val ang2 = 16
 
@@ -139,119 +159,105 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         if (pitchAngle < y0 - ang2) {
             y = -2
         }
-        return "%+d%+d".format(x, y)
-    }
 
-    fun connectBluetoothDevice(macAddress: String) {
-        try {
-            if (btSocket == null) {
-                btAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                // This will connect the device with address as passed
-                val btDevice: BluetoothDevice = btAdapter!!.getRemoteDevice(macAddress);
-                btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(myUUID);
-                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-
-                btSocket!!.connect();
-            }
-        } catch (e: IOException) {
-            btSocket = null
-        }
-    }
-
-    fun sendCommand(command: String) {
-        if (btSocket != null) {
-            try {
-                btSocket!!.outputStream.write(command.toByteArray())
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun updateUI(command: String) {
         val frontCircle = com.ufrj.projetointegrado.R.id.frontCircle
         set.clone(cs)
 
-        val x = command.substring(0, 2).toInt()
-        val y = command.substring(2).toInt()
-
-        when{ // v_roda_esquerda v_roda_direita
+        when { // v_roda_esquerda v_roda_direita
             x == 2 && y == 0 -> { // 2 0
                 set.setHorizontalBias(frontCircle, 1.00f)
                 set.setVerticalBias(frontCircle, 0.50f)
+                sendBluetoothCommand("+2+0")
             }
             x == 1 && y == 0 -> { // 1 0
                 set.setHorizontalBias(frontCircle, 0.75f)
                 set.setVerticalBias(frontCircle, 0.50f)
+                sendBluetoothCommand("+1+0")
             }
             x == -1 && y == 0 -> { // 0 1
                 set.setHorizontalBias(frontCircle, 0.25f)
                 set.setVerticalBias(frontCircle, 0.50f)
+                sendBluetoothCommand("+0+1")
             }
             x == -2 && y == 0 -> { // 0 2
                 set.setHorizontalBias(frontCircle, 0.00f)
                 set.setVerticalBias(frontCircle, 0.50f)
+                sendBluetoothCommand("+0+2")
             }
             x == -1 && y == -1 -> { // 0 -1
                 set.setHorizontalBias(frontCircle, 0.25f)
                 set.setVerticalBias(frontCircle, 0.65f)
+                sendBluetoothCommand("+0-1")
             }
             x == 1 && y == -1 -> { // -1 0
                 set.setHorizontalBias(frontCircle, 0.75f)
                 set.setVerticalBias(frontCircle, 0.65f)
+                sendBluetoothCommand("-1+0")
             }
             x == 0 && y == 2 -> { // 2 2
                 set.setHorizontalBias(frontCircle, 0.50f)
                 set.setVerticalBias(frontCircle, 0.00f)
+                sendBluetoothCommand("+2+2")
             }
             x == 0 && y == 1 -> { // 1 1
                 set.setHorizontalBias(frontCircle, 0.50f)
                 set.setVerticalBias(frontCircle, 0.25f)
+                sendBluetoothCommand("+1+1")
             }
             x == 0 && y == -1 -> { // -1 -1
                 set.setHorizontalBias(frontCircle, 0.50f)
                 set.setVerticalBias(frontCircle, 0.75f)
+                sendBluetoothCommand("-1-1")
             }
             x == 0 && y == -2 -> { // -2 -2
                 set.setHorizontalBias(frontCircle, 0.50f)
                 set.setVerticalBias(frontCircle, 1.00f)
+                sendBluetoothCommand("-2-2")
             }
             x == 2 && y <= -1 -> { // -2 -1
                 set.setHorizontalBias(frontCircle, 0.85f)
                 set.setVerticalBias(frontCircle, 0.85f)
+                sendBluetoothCommand("-2-1")
             }
             x == 1 && y == -2 -> { // -2 -1
                 set.setHorizontalBias(frontCircle, 0.85f)
                 set.setVerticalBias(frontCircle, 0.85f)
+                sendBluetoothCommand("-2-1")
             }
             x == 2 && y >= 1 -> { // 2 1
                 set.setHorizontalBias(frontCircle, 0.85f)
                 set.setVerticalBias(frontCircle, 0.15f)
+                sendBluetoothCommand("+2+1")
             }
             x == 1 && y >= 1 -> { // 2 1
                 set.setHorizontalBias(frontCircle, 0.85f)
                 set.setVerticalBias(frontCircle, 0.15f)
+                sendBluetoothCommand("+2+1")
             }
             x == -2 && y >= 1 -> { // 1 2
                 set.setHorizontalBias(frontCircle, 0.15f)
                 set.setVerticalBias(frontCircle, 0.15f)
+                sendBluetoothCommand("+1+2")
             }
             x == -1 && y >= 1 -> { // 1 2
                 set.setHorizontalBias(frontCircle, 0.15f)
                 set.setVerticalBias(frontCircle, 0.15f)
+                sendBluetoothCommand("+1+2")
             }
             x == -2 && y <= -1 -> { // -1 -2
                 set.setHorizontalBias(frontCircle, 0.15f)
                 set.setVerticalBias(frontCircle, 0.85f)
+                sendBluetoothCommand("-1-2")
             }
             x == -1 && y == -2 -> { // -1 -2
                 set.setHorizontalBias(frontCircle, 0.15f)
                 set.setVerticalBias(frontCircle, 0.85f)
+                sendBluetoothCommand("-1-2")
             }
             else -> { // 0 0
                 set.setHorizontalBias(frontCircle, 0.50f)
                 set.setVerticalBias(frontCircle, 0.50f)
+                sendBluetoothCommand("+0+0")
             }
         }
 
