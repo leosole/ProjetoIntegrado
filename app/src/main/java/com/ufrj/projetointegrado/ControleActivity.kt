@@ -43,7 +43,6 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_controle)
         cs = binding.controleConstraint
         val buttonCalibrate = com.ufrj.projetointegrado.R.id.buttonCalibrate
-        val frontCircle = com.ufrj.projetointegrado.R.id.frontCircle
         set = ConstraintSet()
         set.clone(cs)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
@@ -72,12 +71,11 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         }
         binding.buttonParar.setOnClickListener{
             set.setVerticalBias(buttonCalibrate, 0.8f)
+            set.applyTo(cs)
             binding.buttonCalibrate.text = "Calibrar"
             binding.instrCalibrate.setText(R.string.instrucao_calib)
             start = false
-            set.setHorizontalBias(frontCircle, 0.50f)
-            set.setVerticalBias(frontCircle, 0.50f)
-            set.applyTo(cs)
+            sendCommandAndUpdateUI(y0, x0)
             binding.buttonParar.setVisibility(View.INVISIBLE)
         }
 
