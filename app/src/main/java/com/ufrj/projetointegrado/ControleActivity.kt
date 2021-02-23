@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -41,6 +42,10 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_controle)
         cs = binding.controleConstraint
+        val buttonCalibrate = com.ufrj.projetointegrado.R.id.buttonCalibrate
+        val frontCircle = com.ufrj.projetointegrado.R.id.frontCircle
+        set = ConstraintSet()
+        set.clone(cs)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         start = false
         calibrate = false
@@ -56,13 +61,26 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         binding.buttonCalibrate.setOnClickListener {
             if (!start) {
-                binding.buttonCalibrate.setText("Recalibrar")
+                binding.buttonCalibrate.text = "Recalibrar"
+                set.setVerticalBias(buttonCalibrate, 0.78f)
+                set.applyTo(cs)
                 binding.instrCalibrate.setText(R.string.instrucao_recalib)
+                binding.buttonParar.setVisibility(View.VISIBLE)
                 start = true
             }
             calibrate = true
         }
-        set = ConstraintSet()
+        binding.buttonParar.setOnClickListener{
+            set.setVerticalBias(buttonCalibrate, 0.8f)
+            binding.buttonCalibrate.text = "Calibrar"
+            binding.instrCalibrate.setText(R.string.instrucao_calib)
+            start = false
+            set.setHorizontalBias(frontCircle, 0.50f)
+            set.setVerticalBias(frontCircle, 0.50f)
+            set.applyTo(cs)
+            binding.buttonParar.setVisibility(View.INVISIBLE)
+        }
+
 
         connectBluetoothDevice(ARDUINO_MAC_ADDRESS)
     }
@@ -104,14 +122,14 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     fun connectBluetoothDevice(macAddress: String) {
         try {
             if (btSocket == null) {
-                btAdapter = BluetoothAdapter.getDefaultAdapter();
+                btAdapter = BluetoothAdapter.getDefaultAdapter()
 
                 // This will connect the device with address as passed
-                val btDevice: BluetoothDevice = btAdapter!!.getRemoteDevice(macAddress);
-                btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(myUUID);
-                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                val btDevice: BluetoothDevice = btAdapter!!.getRemoteDevice(macAddress)
+                btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(myUUID)
+                BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
 
-                btSocket!!.connect();
+                btSocket!!.connect()
             }
         } catch (e: IOException) {
             btSocket = null
