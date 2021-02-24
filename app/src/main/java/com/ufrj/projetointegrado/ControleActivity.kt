@@ -102,7 +102,6 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
         SensorManager.getRotationMatrixFromVector(rotationMatrix, rotationVector)
         val orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles)
 
-        //val azimuthAngle = Math.toDegrees(orientation[0].toDouble())
         val pitchAngle = Math.toDegrees(orientation[1].toDouble())
         val rollAngle = Math.toDegrees(orientation[2].toDouble())
         if (calibrate) { // calibração
