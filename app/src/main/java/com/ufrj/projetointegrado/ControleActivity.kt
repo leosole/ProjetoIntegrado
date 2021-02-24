@@ -37,7 +37,7 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
     var btAdapter: BluetoothAdapter? = null
     var btSocket: BluetoothSocket? = null
     val myUUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-    private lateinit var ARDUINO_MAC_ADDRESS: String
+    val ARDUINO_MAC_ADDRESS = "00:19:09:26:08:FC"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,28 +80,8 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             binding.buttonParar.setVisibility(View.INVISIBLE)
         }
 
-        ARDUINO_MAC_ADDRESS = searchPairedDevices("HC-05")
-        if(ARDUINO_MAC_ADDRESS != "not found") {
-            connectBluetoothDevice(ARDUINO_MAC_ADDRESS)
-        }
-        else {
-            val text = "Carrinho não encontrado"
-            val duration = Toast.LENGTH_LONG
-            val toast = Toast.makeText(applicationContext, text, duration)
-            toast.show()
-            this.finish()
-        }
-    }
+        connectBluetoothDevice(ARDUINO_MAC_ADDRESS)
 
-    fun searchPairedDevices(name: String): String { // procura o módulo bluetooth pelo nome (HC-05)
-        val pairedDevices: Set<BluetoothDevice>? = btAdapter?.bondedDevices
-        var mac = "not found"
-        pairedDevices?.forEach { device ->
-            if (device.name == name){
-                mac = device.address
-            }
-        }
-        return mac
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -150,6 +130,11 @@ class ControleActivity : AppCompatActivity(), SensorEventListener {
             }
         } catch (e: IOException) {
             btSocket = null
+            val text = "Carrinho não encontrado"
+            val duration = Toast.LENGTH_LONG
+            val toast = Toast.makeText(applicationContext, text, duration)
+            toast.show()
+            this.finish()
         }
     }
 
